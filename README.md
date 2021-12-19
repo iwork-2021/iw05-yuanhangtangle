@@ -1,44 +1,15 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-f059dc9a6f8d3a56e377f745f24479a46679e63a5d9fe6f495e02850cd0d8118.svg)](https://classroom.github.com/online_ide?assignment_repo_id=6480243&assignment_repo_type=AssignmentRepo)
-# iw05
-iOS assignment 5: Object Detection App.
+# IW05
 
-作业 4-1 
-  请基于模板工程(ObjectDetection)，运用CoreML开发一个利用TinyYOLO进行目标检测的iOS App。
+> @author:  汤远航
+>
+> @StuID: 181840211
 
-功能要求如下：
+这次作业分为几部分:
 
-1. 通过TuriCreate，基于snacks数据集训练目标检测模型
-2. 运用摄像头功能，利用训练好的模型进行实时的目标检测，支持多目标检测
-3. 在屏幕上展示神经网络模型的分类结果和目标框(bounding box)
+- 数据的读取: snacks 数据集的读取需要实现一个函数, 这只需要针对图片的大小和方框的比例进行乘法计算即可
+- 模型的训练: turicreate一键完成, 在Ubuntu系统中CPU运行了两天左右, 得到的 iou只有 0.32 左右
+- 模型的部署: 通过 `VNRecognizedObjectObservation` 可以获得所有的识别结果, 将其中 `confidence` 小于 0.8  的识别结果过滤, 通过 `VNImageRectForNormalizedRect` 和 `UIsreen.main.size` 将识别得到的`boundingbox`转化为合适的尺寸, 使用提供的`boundingboxview.show`函数绘制即可
 
-非必要功能需求如下：
+主要的困难:
 
-1. 可调iouThreshold和confidenceThreshold
-2. 熟悉YOLOv X模型
-
-操作流程简介
-
-0. 安装python（mac环境不需要，自带了）
-
-1. 安装conda（可以通过pip install）
-
-2. 安装conda环境：turienv.yaml是conda环境需求文件，通过一下命令安装环境
-```python
-conda env create -f turienv.yaml
-```
-3. 安装jupyter notebook
-  
-  通过conda安装
-  ```python
-  conda install -c conda-forge notebook
-  ```
-  通过pip安装
-  ```python
-  pip install notebook
-  ```
-  安装好后，在终端运行
-  ```terminal
-  jupyter notebook
-  ```
-  
-4. 执行tinyYOLO.ipynb
+- 没有将`show`函数放进 `Dispatch.main.sync`里面, 导致方框未被展示
