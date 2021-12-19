@@ -38,6 +38,7 @@ class ViewController: UIViewController {
   var videoCapture: VideoCapture!
   var currentBuffer: CVPixelBuffer?
 
+
   lazy var visionModel: VNCoreMLModel = {
     do {
 //        let coreMLWrapper = SnackLocalizationModel()
@@ -47,7 +48,7 @@ class ViewController: UIViewController {
       if #available(iOS 13.0, *) {
         visionModel.inputImageFeatureName = "image"
         visionModel.featureProvider = try MLDictionaryFeatureProvider(dictionary: [
-          "iouThreshold": MLFeatureValue(double: 0.45),
+          "iouThreshold": MLFeatureValue(double: 0.5),
           "confidenceThreshold": MLFeatureValue(double: 0.25),
         ])
       }
@@ -181,10 +182,47 @@ class ViewController: UIViewController {
 
   func processObservations(for request: VNRequest, error: Error?) {
     //call show function
+      if let results = request.results as? [VNRecognizedObjectObservation] {
+          if results.isEmpty {
+              //print("Nonthing found in the scene")
+          } else {
+              self.show(predictions: results)
+          }
+      } else if let error = error {
+          print("Error: \(error.localizedDescription)")
+      }
   }
 
   func show(predictions: [VNRecognizedObjectObservation]) {
    //process the results, call show function in BoundingBoxView
+      for (ind, result) in predictions.enumerated(){
+          if ind > self.boundingBoxViews.count{
+              return
+          }
+          let classLabels = result.labels[0]
+          let confidence = classLabels.confidence
+          if confidence < 0.8{
+              continue
+          }
+          DispatchQueue.main.async {
+              let label = classLabels.identifier
+              
+              let text = label + " " + String(format: "%.1f%%", confidence*100)
+              print(label + " " + String(format: "%.1f%%", confidence*100))
+              let normalizedRect = result.boundingBox // may be modified
+              //let width = CVPixelBufferGetWidth(self.currentBuffer!)
+              //let height = CVPixelBufferGetHeight(self.currentBuffer!)
+              let width = UIScreen.main.bounds.width
+              let height = UIScreen.main.bounds.height
+              let rect = VNImageRectForNormalizedRect(normalizedRect, Int(width), Int(height))
+              //let rect = CGRect(x: 100, y: 100, width: 100, height: 200)
+              let color = self.colors[label]
+              //let color = UIColor(red: 1.0, green: 1.0, blue: 0, alpha: 1.0)
+              let bbox = self.boundingBoxViews[ind]
+              bbox.show(frame: rect, label: text, color: color!)
+              }
+      }
+  }
 }
 
 extension ViewController: VideoCaptureDelegate {

@@ -30,8 +30,8 @@ import Foundation
 import UIKit
 
 class BoundingBoxView {
-  let shapeLayer: CAShapeLayer
-  let textLayer: CATextLayer
+  let shapeLayer: CAShapeLayer // 显示框框
+  let textLayer: CATextLayer // 显示种类
 
   init() {
     shapeLayer = CAShapeLayer()
@@ -53,7 +53,7 @@ class BoundingBoxView {
     parent.addSublayer(textLayer)
   }
 
-  func show(frame: CGRect, label: String, color: UIColor) {
+  func show(frame: CGRect, label: String, color: UIColor) { // 方框位置，类别，颜色
     CATransaction.setDisableActions(true)
 
     let path = UIBezierPath(rect: frame)
